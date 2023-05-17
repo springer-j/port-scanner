@@ -5,7 +5,6 @@ Date:           5/16/23
 Purpose:        Scan open ports with Python
 Python Vers:    3.11.3
 '''
-import json #!
 from subprocess import call # For clear
 from socket import *
 import time # Runtime information
@@ -14,8 +13,8 @@ import os # os.path.exists(ports_file)
 import nmap
 
 start_time = time.time()
-lab_mode = False # Don't clear terminal, used for screenshots
-use_default_target = True # Always scan the default_target_ip
+clear_mode = False # Don't clear terminal, used for screenshots
+use_default_target = False # Always scan the default_target_ip
 default_target_ip = '10.0.0.151' # dutiful raspberry pi
 ports_file = "target_ports.txt" # Loaded ports to be scanned
 most_common_ports = [ # Used for writing ports_file
@@ -25,7 +24,7 @@ most_common_ports = [ # Used for writing ports_file
 
 def clear():
     try:
-        if lab_mode: # Save output for screenshots
+        if clear_mode: # Save output for screenshots
             print("\n")
         else:
             call("clear")
@@ -61,17 +60,21 @@ def report(ip,ports,open):
 def get_ip():
     if use_default_target:
         return default_target_ip
+    clear()
     while True:
-        clear()
         print("[~] Enter target")
         print("[~] Target can either be a URL or IPv4")
         print("[~] Example: site.com OR 10.10.10.10")
         entry = input("\n[?] ")
-        target = gethostbyname(entry)
-        return target
+        try:
+            target = gethostbyname(entry)
+            return target
+        except gaierror:
+            print("\n[X] Bad URL/Service\n")
 
 
-def scan(ip, ports): # Returns bool
+def scan(ip, ports): 
+    # Returns dict of scan info from open ports
     if not ports:
         clear()
         print("[X] Scan failed: no ports provided.")
@@ -103,6 +106,7 @@ def scan(ip, ports): # Returns bool
             print(("-" * (40 - len(str(port)))) + " CLOSED")
     return open_ports
         
+
 def manual_scan(ip):
     # User enters target ports one by one
     ports = []
@@ -197,6 +201,10 @@ def main():
             range_scan(ip)
         elif select == '3':
             scan_from_file(ip)
-        
-    
-main()
+
+
+try:    
+    main()
+except KeyboardInterrupt:
+    clear()
+    sys.exit()
