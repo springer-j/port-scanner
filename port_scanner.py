@@ -5,12 +5,13 @@ Date:           5/16/23
 Purpose:        Scan open ports with Python
 Python Vers:    3.11.3
 '''
-
+import json #!
 from subprocess import call # For clear
 from socket import *
 import time # Runtime information
 import sys # sys.exit()
 import os # os.path.exists(ports_file)
+import nmap
 
 start_time = time.time()
 lab_mode = False # Don't clear terminal, used for screenshots
@@ -37,18 +38,22 @@ def report(ip,ports,open):
     print("-"* 50)
     print()
     print("\t ///  SCAN COMPLETE  ///\n")
-    print("[>] HOST:                        ", ip)
-    print("[>] NUMBER OF PORTS SCANNED:     ", len(ports))
-    print("[>] NUMBER OF FOUND OPEN PORTS:  ", len(open))
-    print("[>] RUNTIME:                     ",time.time() - start_time)
+    print("[>] HOST:                    ", ip)
+    print("[>] TOTAL PORTS SCANNED:     ", len(ports))
+    print("[>] OPEN PORTS FOUND:        ", len(open))
+    print("[>] RUNTIME:                 ",time.time() - start_time)
     print()
     print("-"* 50)
     print()
-    print("\t /  Open Ports  / ")
+    print("\t  /  Open Ports  / ")
     print()
     for p in open:
-        print("- " + str(p))
-    print()
+        print("[>] Port: " + p["port"])
+        print(" >  Service:    " + p["name"])
+        print(" >  Product:    " + p["product"])
+        print(" >  Version:    " + p["version"])
+        print(" >  Other info: " + p["misc"])
+        print()
     print("-"* 50)
     input("\n[>] Press enter to return to menu ")
 
@@ -75,20 +80,27 @@ def scan(ip, ports): # Returns bool
         return
     open_ports = []
     clear()
-    print("[~] Scanning ports.")
+    print("[~] Scanning ports...")
     print("[~] Target IP:     ", ip)
     print("[~] Ports to scan: ", len(ports))
     print()
+    scanner = nmap.PortScanner()
     for port in ports:
         print(f"[>] SCANNING PORT: {str(port)} ", end='',flush=True)
-        s = socket(AF_INET,SOCK_STREAM)
-        conn = s.connect_ex((ip, port))
-        if conn == 0:
-            open_ports.append(port)
-            print(("-" * 40) + " OPEN")
+        scan = scanner.scan(ip, str(port))
+        result = scan['scan'][ip]['tcp'][port]
+        if result["state"] == 'open':
+            port_data = {
+                "port":str(port),
+                "name":result["name"],
+                "product":result["product"],
+                "version":result["version"],
+                "misc":result["extrainfo"]
+            }
+            print("=" * (40 - len(str(port))) + " OPEN")
+            open_ports.append(port_data)
         else:
-            print(("-" * 40) + " CLOSED")
-        s.close()
+            print(("-" * (40 - len(str(port)))) + " CLOSED")
     return open_ports
         
 def manual_scan(ip):
