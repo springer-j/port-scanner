@@ -12,3 +12,4 @@ Port scanner made with Python and the nmap module. Just runs tcp scans and likel
 - [ ] Different scan types with nmap.
 - [ ] Save results to a txt file.
 - [ ] Re-add the scan w/ the `sockets` module for faster scans.
+- [ ] Error handling when given bad URLs
