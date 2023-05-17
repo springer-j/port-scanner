@@ -1,2 +1,4 @@
 # port-scanner
-Went way overboard on a homework project and thought it deserved it's own repo.
+Port scanner using Python. Probably makes a whole lot of racket so likely more useful for defense. 
+Switched from the socket module to nmap. Slows things down a bit but has a whole lot more useful information. 
+
