@@ -6,10 +6,12 @@ Port scanner made with Python and the nmap module. Just runs tcp scans and likel
 ## Important Notes
 * Switched from the socket module to nmap. Slows things down a bit but provides a lot more information. 
 * Use the `use_default_target` and `default_target_ip` to skip the "input IP" screen. Useful for repeated testing.
+* Requires the `python-nmap` library and for `nmap` to be installed in the system path.
 
 ## To-Do
 - [ ] Verbose mode during scanning.
 - [ ] Different scan types with nmap.
 - [ ] Save results to a txt file.
 - [ ] Re-add the scan w/ the `sockets` module for faster scans.
-- [ ] Error handling when given bad URLs
+
+- [X] Error handling when given bad URLs
